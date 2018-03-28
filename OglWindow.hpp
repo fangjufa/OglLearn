@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include<Windows.h>
 #include<iostream>
@@ -19,7 +19,7 @@ public:
 	oglWindow()
 	{
 		_hWnd = NULL;
-		szTitle = L"ÏÔÊ¾´°¿Ú";
+		szTitle = L"æ˜¾ç¤ºçª—å£";
 		szWindowClass = L"oglWindow";
 	}
 
@@ -28,30 +28,30 @@ public:
 		//Close();
 	}
 
-	HINSTANCE _hInst;					// µ±Ç°ÊµÀý
-	TCHAR* szTitle;					// ±êÌâÀ¸ÎÄ±¾
-	TCHAR* szWindowClass;			// Ö÷´°¿ÚÀàÃû
-									//Éú³ÉµÄ´°¿Ú¾ä±ú
+	HINSTANCE _hInst;					// å½“å‰å®žä¾‹
+	TCHAR* szTitle;					// æ ‡é¢˜æ æ–‡æœ¬
+	TCHAR* szWindowClass;			// ä¸»çª—å£ç±»å
+									//ç”Ÿæˆçš„çª—å£å¥æŸ„
 	HWND _hWnd;
 	int width;
 	int height;
 
 	///-------------------------------------------------------------------------------------------------
-	/// <summary> ´´½¨Ò»¸ö´°¿Ú. </summary>
+	/// <summary> åˆ›å»ºä¸€ä¸ªçª—å£. </summary>
 	/// <returns>
 	/// true if it succeeds, false if it fails.
 	/// </returns>
 	///-------------------------------------------------------------------------------------------------
 	BOOL Create(int w,int h,WNDPROC proc= NULL)
 	{
-		if (_hWnd != NULL)//Èç¹ûÒÑ¾­´´½¨ÁËÒ»¸ö´°¿ÚÄÇÃ´²»ÔÙÖØ¸´´´½¨
+		if (_hWnd != NULL)//å¦‚æžœå·²ç»åˆ›å»ºäº†ä¸€ä¸ªçª—å£é‚£ä¹ˆä¸å†é‡å¤åˆ›å»º
 		{
 			return FALSE;
 		}
 
-		//·µ»ØÄ£¿éµÄ¾ä±ú£¬±ÈÈçÊÇ.exeÄ£¿éµÄ¾ä±ú»òÕß.dllÄ£¿éµÄ¾ä±ú¡£
-		//Èç¹û´«Èë²ÎÊýÎªNULL£¬Ôò·µ»Øµ÷ÓÃ¸Ã´°¿ÚµÄ.exeÄ£¿é¾ä±ú¡£
-		//Ò²¿ÉÒÔÏñÕâÑùµ÷ÓÃ»ñÈ¡Ä£¿é¾ä±úGetModuleHandle("mydll.dll")
+		//è¿”å›žæ¨¡å—çš„å¥æŸ„ï¼Œæ¯”å¦‚æ˜¯.exeæ¨¡å—çš„å¥æŸ„æˆ–è€….dllæ¨¡å—çš„å¥æŸ„ã€‚
+		//å¦‚æžœä¼ å…¥å‚æ•°ä¸ºNULLï¼Œåˆ™è¿”å›žè°ƒç”¨è¯¥çª—å£çš„.exeæ¨¡å—å¥æŸ„ã€‚
+		//ä¹Ÿå¯ä»¥åƒè¿™æ ·è°ƒç”¨èŽ·å–æ¨¡å—å¥æŸ„GetModuleHandle("mydll.dll")
 		_hInst = GetModuleHandle(NULL);
 
 		WNDCLASSEX wcex;
@@ -60,7 +60,7 @@ public:
 		wcex.cbSize = sizeof(WNDCLASSEX);
 		wcex.style = CS_HREDRAW | CS_VREDRAW;// | CS_DBLCLKS | CS_OWNDC;
 
-											 //ÉèÖÃÆä»Øµ÷º¯Êý
+											 //è®¾ç½®å…¶å›žè°ƒå‡½æ•°
 		if (proc != NULL)
 			wcex.lpfnWndProc = proc;
 		else
@@ -73,8 +73,8 @@ public:
 		wcex.hIcon = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(107));
 		wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(108));
 		wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-		//wcex.lpszMenuName	= MAKEINTRESOURCE(IDC_WIN01);//²»Òª²Ëµ¥À¸
-		wcex.lpszClassName = szWindowClass;//Ö÷´°¿ÚÀàÃû
+		//wcex.lpszMenuName	= MAKEINTRESOURCE(IDC_WIN01);//ä¸è¦èœå•æ 
+		wcex.lpszClassName = szWindowClass;//ä¸»çª—å£ç±»å
 
 		RegisterClassEx(&wcex);
 
@@ -93,7 +93,7 @@ public:
 		//{
 		//	for (int i = 0; i < mInfo.size(); i++)
 		//	{
-		//		//»ñÈ¡ÌØ¶¨ÏÔÊ¾Æ÷µÄÐÅÏ¢£¬×îÖØÒªµÄÊÇ·Ö±æÂÊ£¬ÆðÊ¼×ø±êµÈ¡£
+		//		//èŽ·å–ç‰¹å®šæ˜¾ç¤ºå™¨çš„ä¿¡æ¯ï¼Œæœ€é‡è¦çš„æ˜¯åˆ†è¾¨çŽ‡ï¼Œèµ·å§‹åæ ‡ç­‰ã€‚
 		//		if (!mInfo[i].isPrimary)
 		//		{
 		//			RECT rect = mInfo[0].rect;
@@ -108,15 +108,15 @@ public:
 
 		width = w;
 		height = h;
-		//»ñÈ¡ÒÔÏñËØÎªµ¥Î»µÄÆÁÄ»³ß´ç¡£
-		//´òÓ¡µÃ³öÈ·ÊµµÃµ½ÁË³¤¿í¡£
+		//èŽ·å–ä»¥åƒç´ ä¸ºå•ä½çš„å±å¹•å°ºå¯¸ã€‚
+		//æ‰“å°å¾—å‡ºç¡®å®žå¾—åˆ°äº†é•¿å®½ã€‚
 		//cout << "width:" << width << "  height:" << height << endl;
 		_hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
 			startx, starty, width, height, NULL, NULL, _hInst, NULL);
 
 		if (!_hWnd)
 		{
-			//Debug::GetInst()->Log("´´½¨´°¿ÚÊ§°Ü£º%d", GetLastError());
+			//Debug::GetInst()->Log("åˆ›å»ºçª—å£å¤±è´¥ï¼š%d", GetLastError());
 			return FALSE;
 		}
 		//ToggleFullScreen();
@@ -145,7 +145,7 @@ public:
 private:
 
 	///-------------------------------------------------------------------------------------------------
-	/// <summary> Ò»¸öWndProcÏûÏ¢´¦Àíº¯ÊýÄ£°å. </summary>
+	/// <summary> ä¸€ä¸ªWndProcæ¶ˆæ¯å¤„ç†å‡½æ•°æ¨¡æ¿. </summary>
 	/// <returns> A CALLBACK. </returns>
 	///-------------------------------------------------------------------------------------------------
 	static	LRESULT CALLBACK  MyWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -156,12 +156,12 @@ private:
 			break;
 		case WM_PAINT:
 			//hdc = BeginPaint(hWnd, &ps);
-			//// TODO:  ÔÚ´ËÌí¼ÓÈÎÒâ»æÍ¼´úÂë...
+			//// TODO:  åœ¨æ­¤æ·»åŠ ä»»æ„ç»˜å›¾ä»£ç ...
 			//EndPaint(hWnd, &ps);
 			break;
 
 		case WM_KEYDOWN:
-			//´¦Àí¼üÅÌÉÏÄ³Ò»¼ü°´ÏÂµÄÏûÏ¢
+			//å¤„ç†é”®ç›˜ä¸ŠæŸä¸€é”®æŒ‰ä¸‹çš„æ¶ˆæ¯
 
 			return 0;
 
@@ -175,8 +175,8 @@ private:
 	}
 
 	///----------------------------------------------------------------------------------------
-	///»ñÈ¡ËùÓÐÏÔÊ¾Æ÷µÄÐÅÏ¢£¬²¢°ÑËüÃÇ´æ´¢ÔÚvectorÊý×éÄÚ¡£
-	///¸Ã·½·¨»á×÷ÎªEnumDisplayMonitorsµÄ»Øµ÷º¯Êý£¬¸ÃvectorÊý×éÒ²»áÒÔ´ËÐÎÊ½´«³öÈ¥¡£
+	///èŽ·å–æ‰€æœ‰æ˜¾ç¤ºå™¨çš„ä¿¡æ¯ï¼Œå¹¶æŠŠå®ƒä»¬å­˜å‚¨åœ¨vectoræ•°ç»„å†…ã€‚
+	///è¯¥æ–¹æ³•ä¼šä½œä¸ºEnumDisplayMonitorsçš„å›žè°ƒå‡½æ•°ï¼Œè¯¥vectoræ•°ç»„ä¹Ÿä¼šä»¥æ­¤å½¢å¼ä¼ å‡ºåŽ»ã€‚
 	///
 	///----------------------------------------------------------------------------------------
 	static BOOL CALLBACK MonitorEnumProc(__in  HMONITOR hMonitor, __in  HDC hdcMonitor, __in  LPRECT lprcMonitor, __in  LPARAM dwData)

@@ -1,8 +1,8 @@
-#pragma once
+ï»¿#pragma once
 
 #define VERTEX_SHADER_SRC()						                    \
 	"#version 150\n"							                    \
-	"in highp vec3 pos;\n"				  						    \
+	" in highp vec3 pos;\n"				  						    \
 	"void main()\n"													\
 	"{\n"															\
 	"	gl_Position = vec4(pos,1);//mvpMatrix * vec4(pos,1);\n"     \
@@ -15,6 +15,6 @@
 	"\n"											\
 	"void main()\n"									\
 	"{\n"											\
-	"    fragColor = vec4(0,0,1,1);\n"		\
+	"    fragColor = vec4(0,0.5,0.5,1);\n"		\
 	"}\n"											\
-//±¾À´ÌáÊ¾Î´ÉêÃ÷µÄ±ê¼Ç£¬¼ÓÁËÒ»ĞĞ¿ÕĞĞ¾Í¿ÉÒÔÁË£¬ÉñÆæ¡£
+//æœ¬æ¥æç¤ºæœªç”³æ˜çš„æ ‡è®°ï¼ŒåŠ äº†ä¸€è¡Œç©ºè¡Œå°±å¯ä»¥äº†ï¼Œç¥å¥‡ã€‚

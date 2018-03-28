@@ -1,4 +1,4 @@
-#include<iostream>
+ï»¿#include<iostream>
 #include<assert.h>
 #include"OglWindow.hpp"
 #include"GLEW\glew.h"
@@ -20,6 +20,7 @@ float*    vertexArray;
 int*      indexArray;
 GLuint    m_VertexBuffer;
 GLuint    m_IndexBuffer;
+GLuint    m_VAO;
 
 
 static GLuint CompileShader(GLenum type, const char* sourceText)
@@ -34,7 +35,7 @@ static GLuint CompileShader(GLenum type, const char* sourceText)
 	return ret;
 }
 
-///´´½¨Shader×ÊÔ´
+///åˆ›å»ºShaderèµ„æº
 void SetupShader()
 {
 	m_VertexShader = CompileShader(GL_VERTEX_SHADER, VERTEX_SHADER_SRC());
@@ -51,95 +52,111 @@ void SetupShader()
 	if (m_Program != 0)
 		printf("Shader program not null.\r\n");
 
-	//½«±äÁ¿kVertexInputPositionÓëshaderÖĞµÄpos±äÁ¿°ó¶¨,pos±äÁ¿ÔÚshaderÖĞµÄÎ»ÖÃ¸³¸økVertexInputPosition
-	//¸Ãº¯ÊıÓëÏÂÃæµÄglBindFragDataLocationÓÃ´¦²»Ò»Ñù£¬¸Ãº¯ÊıÊÇ°ó¶¨Vertex shaderÖĞµÄ±äÁ¿µÄ¡£
+	//å°†å˜é‡kVertexInputPositionä¸shaderä¸­çš„poså˜é‡ç»‘å®š,poså˜é‡åœ¨shaderä¸­çš„ä½ç½®èµ‹ç»™kVertexInputPosition
+	//è¯¥å‡½æ•°ä¸ä¸‹é¢çš„glBindFragDataLocationç”¨å¤„ä¸ä¸€æ ·ï¼Œè¯¥å‡½æ•°æ˜¯ç»‘å®šVertex shaderä¸­çš„å˜é‡çš„ã€‚
 	glBindAttribLocation(m_Program, kVertexInputPosition, "pos");
+	printf("kVertexInputPosition:%d.\n",kVertexInputPosition);
 	glAttachShader(m_Program, m_VertexShader);
 	glAttachShader(m_Program, m_FragmentShader);
 
-	//°ó¶¨fragment shaderÖĞµÄ±äÁ¿¡£
+	//ç»‘å®šfragment shaderä¸­çš„å˜é‡ã€‚
 	//glBindFragDataLocation(m_Program, 0, "fragColor");
 	
-	//¼ÓÉÏÕâ¾ä»°Ö®ºó£¬glBindAttribLocationµÄÓï¾ä²Å¿ªÊ¼ÉúĞ§¡£
+	//åŠ ä¸Šè¿™å¥è¯ä¹‹åï¼ŒglBindAttribLocationçš„è¯­å¥æ‰å¼€å§‹ç”Ÿæ•ˆã€‚
 	glLinkProgram(m_Program);
+
 
 	GLint status = 0;
 	glGetProgramiv(m_Program, GL_LINK_STATUS, &status);
+
+	GLenum error = glGetError();
+	printf("Get shader variable location error:%d.\r\n", error);
 	assert(status == GL_TRUE);
 
 
 	//m_UniformCoeff = glGetUniformLocation(m_Program, "coeff");
-	GLenum error = glGetError();
-	printf("Get shader variable location error:%d.\r\n", error);
+
 }
 
 
-///´´½¨VBO£¬VAOµÈ¡£
+///åˆ›å»ºVBOï¼ŒVAOç­‰ã€‚
 void SetupBuffers()
 {
-	//³õÊ¼»¯¶¥µãÊı×éºÍË÷ÒıÊı×é¡£
+	//åˆå§‹åŒ–é¡¶ç‚¹æ•°ç»„å’Œç´¢å¼•æ•°ç»„ã€‚
 	vertexArray = new float[12]{ -1.f,-1.f, 0,-1.f, 1.f, 0, 1.f, 1.f, 0, 1.f,-1.f, 0 };
-	//ÄæÊ±Õë
+	//é€†æ—¶é’ˆ
 	indexArray = new int[6]{ 0,2,1,3,2,0 };
 	// Create vertex buffer VBO
 	glGenBuffers(1, &m_VertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, m_VertexBuffer);
 	glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float), vertexArray, GL_STATIC_DRAW);
 
-	//´´½¨Ë÷Òı»º´æ
+	//åˆ›å»ºç´¢å¼•ç¼“å­˜
 	glGenBuffers(1, &m_IndexBuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(int), indexArray, GL_STATIC_DRAW);
+
+	//åˆ›å»ºVAOã€‚
+	glGenVertexArrays(1, &m_VAO);
+	/*glBindVertexArray(m_VAO);
+
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VertexBuffer);
+	glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, FALSE, 0, ((GLubyte*)NULL + 0));
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer);
+
+	glBindVertexArray(0);*/
 
 	assert(glGetError() == GL_NO_ERROR);
 	printf("Create resource success.\n");
 }
 
-void ChangeSize(int w,int h) {}
+void ChangeSize(int w,int h) {
+	//å½“çª—å£å¤§å°æ”¹å˜æ—¶ï¼Œè¦æ›´æ–°çª—å£çš„å®½å’Œé«˜ã€‚
+	oglWin.width = w;
+	oglWin.height = h;
+}
 
 void mainLoop()
 {
-	//Õâ¸öº¯ÊıÊÇ±ØĞëµÄ£¬²»È»»áÃ»ÓĞĞ§¹û¡£
+	//è¿™ä¸ªå‡½æ•°æ˜¯å¿…é¡»çš„ï¼Œä¸ç„¶ä¼šæ²¡æœ‰æ•ˆæœã€‚
 	wglMakeCurrent(g_hDC, g_hRC);
 
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	//glViewport(0, 0, w, h);//Ö¸Ã÷ÊÓ¿Ú
-	GLenum glEnum = glGetError();
-	if (glEnum != GL_NO_ERROR)
-		printf("First GL error:%d.\r\n", glEnum);
 
-	//ÉèÖÃÊ¹ÓÃµÄshader¡£Èç¹ûÒªäÖÈ¾¶à¸öÎïÌå²¢ÇÒ²»Í¬µÄshaderµÄ»°£¬»¹¿ÉÒÔ¼ÌĞø¼ÓglUseProgram
+	//è®¾ç½®ä½¿ç”¨çš„shaderã€‚å¦‚æœè¦æ¸²æŸ“å¤šä¸ªç‰©ä½“å¹¶ä¸”ä¸åŒçš„shaderçš„è¯ï¼Œè¿˜å¯ä»¥ç»§ç»­åŠ glUseProgram
 	glUseProgram(m_Program);
+	//è®¾ç½®è§†å£ã€‚
+	glViewport(0, 0, oglWin.width, oglWin.height);
 
-	//ÏÂÃæµÄ¼¸¾ä»°£¬²Ù×÷µÄÊı×éÊÇÔÚglBindBufferÖĞÉèÖÃGL_ARRAY_BUFFERÉè¶¨µÄ¡£
-	//int positionSlot = glGetAttribLocation(m_Program, "pos");
-	//¿ªÆôGPU¶ÁÈ¡¶¥µã×ÅÉ«Æ÷µÄÊı¾İ£¬Èç¹û²»Ğ´Õâ¾ä£¬GPUÊÇÎŞ·¨¶ÁÈ¡Êı¾İµÄ£¬ÒòÎªCPUÓëGPUÖ®¼äµÄÍ¨µÀÄ¬ÈÏÊÇ¹Ø±ÕµÄ¡£
+	glBindVertexArray(m_VAO);
+	//ä¸‹é¢çš„å‡ å¥è¯ï¼Œæ“ä½œçš„æ•°ç»„æ˜¯åœ¨glBindBufferä¸­è®¾ç½®GL_ARRAY_BUFFERè®¾å®šçš„ã€‚
+
+	//å¼€å¯GPUè¯»å–é¡¶ç‚¹ç€è‰²å™¨çš„æ•°æ®ï¼Œå¦‚æœä¸å†™è¿™å¥ï¼ŒGPUæ˜¯æ— æ³•è¯»å–æ•°æ®çš„ï¼Œå› ä¸ºCPUä¸GPUä¹‹é—´çš„é€šé“é»˜è®¤æ˜¯å…³é—­çš„ã€‚
 	glEnableVertexAttribArray(kVertexInputPosition);
 	glBindBuffer(GL_ARRAY_BUFFER, m_VertexBuffer);
-	//¸øshaderÖĞ´«µİPosition¡£
-	//×îºóÒ»¸ö²ÎÊıÊÇÖ¸Æ«ÒÆÁ¿£¬ÒòÎªÖ»ÓĞÕâÒ»¸öÊı×é£¬ËùÒÔÆ«ÒÆÁ¿Îª0.
-	glVertexAttribPointer(kVertexInputPosition, 3/*Ã¿¸ö¶¥µãÊôĞÔµÄ×é¼şÊıÁ¿£¬±ÈÈçÃ¿¸ö¶¥µãÓÉ3¸öfloatÖµ×é³É*/, GL_FLOAT, GL_FALSE, 0/*²½³¤£¬Á¬ĞøÁ½¸ö¶¥µãÖ®¼ä¿çÔ½µÄÖµ*/, (char*)0);
+	//ç»™shaderä¸­ä¼ é€’Positionã€‚
+	//æœ€åä¸€ä¸ªå‚æ•°æ˜¯æŒ‡åç§»é‡ï¼Œå› ä¸ºåªæœ‰è¿™ä¸€ä¸ªæ•°ç»„ï¼Œæ‰€ä»¥åç§»é‡ä¸º0.
+	glVertexAttribPointer(kVertexInputPosition, 3/*æ¯ä¸ªé¡¶ç‚¹å±æ€§çš„ç»„ä»¶æ•°é‡ï¼Œæ¯”å¦‚æ¯ä¸ªé¡¶ç‚¹ç”±3ä¸ªfloatå€¼ç»„æˆ*/, GL_FLOAT, GL_FALSE, 0/*æ­¥é•¿ï¼Œè¿ç»­ä¸¤ä¸ªé¡¶ç‚¹ä¹‹é—´è·¨è¶Šçš„å€¼*/, (char*)0);
 	
-
-	glEnum = glGetError();
-	if (glEnum != GL_NO_ERROR)
-		printf("Second GL error:%d.\r\n", glEnum);
 	//glEnableVertexAttribArray(kVertexInputColor);
 	//glVertexAttribPointer(kVertexInputColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, kVertexSize, (char*)NULL + 12);
-	//Ë÷ÒıÊı¾İ
+	//ç´¢å¼•æ•°æ®
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer);
 
-	// Draw
-	//µÚÒ»¸ö²ÎÊı£ºÈı½ÇĞÎµÄĞÎÌ¬£¬µÚ¶ş¸ö²ÎÊı£¬
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, indexArray);
 
+	//åœ¨å¼€å§‹ç»˜åˆ¶ä¹‹å‰ç»‘å®šä¸€ä¸‹VAOã€‚
+	//glBindVertexArray(m_VAO);
+	// Draw
+	//ç¬¬ä¸€ä¸ªå‚æ•°ï¼šä¸‰è§’å½¢çš„å½¢æ€ï¼Œç¬¬äºŒä¸ªå‚æ•°ï¼Œ
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 	glDisableVertexAttribArray(kVertexInputPosition);
-
-	glEnum = glGetError();
-	if (glEnum != GL_NO_ERROR)
-		printf("Last GL error:%d.\r\n", glEnum);
+	//åœ¨ç»˜åˆ¶å®Œä¹‹åæ¸…ç©ºä¸€ä¸‹VAOã€‚
+	glBindVertexArray(0);
+	
 
 	SwapBuffers(g_hDC);
 }
@@ -162,7 +179,6 @@ LRESULT CALLBACK WndProc(HWND	hWnd,		// Handle For This Window
 		return 0;
 	case WM_SIZE:
 		ChangeSize(LOWORD(lParam), HIWORD(lParam));
-		//RenderScene();
 		break;
 	case WM_CLOSE:
 		g_ContinueRendering = false;
@@ -194,70 +210,23 @@ int main()
 		PIXELFORMATDESCRIPTOR pfd;
 		g_hDC = GetDC(oglWin._hWnd);
 
-		int nPixCount = 0;
-
-		// Specify the important attributes we care about
-		int pixAttribs[] = {
-			WGL_SUPPORT_OPENGL_ARB, 1, // Must support OGL rendering
-			WGL_DRAW_TO_WINDOW_ARB, 1, // pf that can run a window
-			//WGL_ACCELERATION_ARB,   1, // must be HW accelerated
-			WGL_RED_BITS_ARB,       8, // 8 bits of red precision in window
-			WGL_GREEN_BITS_ARB,     8, // 8 bits of green precision in window
-			WGL_BLUE_BITS_ARB,      8, // 8 bits of blue precision in window
-			WGL_DEPTH_BITS_ARB,     16, // 16 bits of depth precision for window
-			WGL_PIXEL_TYPE_ARB,     WGL_TYPE_RGBA_ARB, // pf should be RGBA type
-			0 }; // NULL termination
-
 		int nPixelFormat = 2;
 
-		// Ask OpenGL to find the most relevant format matching our attribs
-		// Only get one format back.
-		//wglChoosePixelFormatARB(g_hDC, &pixAttribs[0], NULL, 1, &nPixelFormat, (UINT*)&nPixCount);
-		//if (nPixelFormat == -1)
-		//	printf("couldn't find a format.");
-		//printf("nPixelFormat:%d", nPixelFormat);
-
+		//äº†è§£ä¸€ä¸‹è¯¥å‡½æ•°çš„ä½œç”¨
 		SetPixelFormat(g_hDC, nPixelFormat, &pfd);
-		//´´½¨OGLÉÏÏÂÎÄ£¬²¢½«ÆäÉèÖÃÎªµ±Ç°µÄ´°¿Ú¡£
+		//åˆ›å»ºOGLä¸Šä¸‹æ–‡ï¼Œå¹¶å°†å…¶è®¾ç½®ä¸ºå½“å‰çš„çª—å£ã€‚
 		g_hRC = wglCreateContext(g_hDC);
-		//GLint attribs[] = { WGL_CONTEXT_MAJOR_VERSION_ARB,  3,
-		//	WGL_CONTEXT_MINOR_VERSION_ARB,  3,
-		//	0 };
-		//g_hRC = wglCreateContextAttribsARB(g_hDC, 0, attribs);
-		//if (g_hRC == NULL)
-		//{
-		//	printf("!!! Could not create an OpenGL 3.3 context.\n");
-		//	attribs[3] = 2;
-		//	g_hRC = wglCreateContextAttribsARB(g_hDC, 0, attribs);
-		//	if (g_hRC == NULL)
-		//	{
-		//		printf("!!! Could not create an OpenGL 3.2 context.\n");
-		//		attribs[3] = 1;
-		//		g_hRC = wglCreateContextAttribsARB(g_hDC, 0, attribs);
-		//		if (g_hRC == NULL)
-		//		{
-		//			printf("!!! Could not create an OpenGL 3.1 context.\n");
-		//			attribs[3] = 0;
-		//			g_hRC = wglCreateContextAttribsARB(g_hDC, 0, attribs);
-		//			if (g_hRC == NULL)
-		//			{
-		//				printf("!!! Could not create an OpenGL 3.0 context.\n");
-		//				printf("!!! OpenGL 3.0 and higher are not supported on this system.\n");
-		//			}
-		//		}
-		//	}
-
 
 		wglMakeCurrent(g_hDC, g_hRC);
 
 		if (g_hDC == 0 || g_hRC == 0)
 		{
-			printf("´´½¨DCºÍContext³öÏÖ´íÎó¡£");
+			printf("åˆ›å»ºDCå’ŒContextå‡ºç°é”™è¯¯ã€‚");
 		}
 		GLenum err = glewInit();
 		if (err != GLEW_OK)
 		{
-			printf("glew³õÊ¼»¯´íÎó:%s.", glewGetErrorString(err));
+			printf("glewåˆå§‹åŒ–é”™è¯¯:%s.", glewGetErrorString(err));
 		}
 
 		const GLubyte  *oglVersion = glGetString(GL_VERSION);
@@ -270,7 +239,7 @@ int main()
 		ChangeSize(800, 600);
 		while (g_ContinueRendering)
 		{
-			//Õâ¸öwhileÑ­»·Ò»¶¨ÒªÓĞ£¬²»È»´°¿Ú»á¿¨Ö÷
+			//è¿™ä¸ªwhileå¾ªç¯ä¸€å®šè¦æœ‰ï¼Œä¸ç„¶çª—å£ä¼šå¡ä¸»
 			MSG msg;
 			while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 			{
