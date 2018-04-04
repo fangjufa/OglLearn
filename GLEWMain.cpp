@@ -4,6 +4,7 @@
 #include"GLEW\glew.h"
 #include"ShaderResource.hpp"
 #include"GLEW\wglew.h"
+#include"Helper.h"
 
 using namespace std;
 
@@ -16,12 +17,14 @@ GLuint    m_VertexShader;
 GLuint    m_FragmentShader;
 GLuint    m_Program;
 GLuint    kVertexInputPosition;
+GLuint	  kVertexInputTexcoord;
+GLuint    kFragInputTexture;
 float*    vertexArray;
 int*      indexArray;
 GLuint    m_VertexBuffer;
 GLuint    m_IndexBuffer;
 GLuint    m_VAO;
-
+GLuint	  texture;
 
 static GLuint CompileShader(GLenum type, const char* sourceText)
 {
@@ -55,12 +58,13 @@ void SetupShader()
 	//将变量kVertexInputPosition与shader中的pos变量绑定,pos变量在shader中的位置赋给kVertexInputPosition
 	//该函数与下面的glBindFragDataLocation用处不一样，该函数是绑定Vertex shader中的变量的。
 	glBindAttribLocation(m_Program, kVertexInputPosition, "pos");
-	printf("kVertexInputPosition:%d.\n",kVertexInputPosition);
+	glBindAttribLocation(m_Program, kVertexInputTexcoord, "texcoord");
+	//printf("kVertexInputPosition:%d.\n",kVertexInputPosition);
 	glAttachShader(m_Program, m_VertexShader);
 	glAttachShader(m_Program, m_FragmentShader);
 
 	//绑定fragment shader中的变量。
-	//glBindFragDataLocation(m_Program, 0, "fragColor");
+	//glBindFragDataLocation(m_Program, kFragInputTexture, "mSampler");
 	
 	//加上这句话之后，glBindAttribLocation的语句才开始生效。
 	glLinkProgram(m_Program);
@@ -71,7 +75,10 @@ void SetupShader()
 
 	GLenum error = glGetError();
 	printf("Get shader variable location error:%d.\r\n", error);
-	assert(status == GL_TRUE);
+	if (status != GL_TRUE)
+	{
+		printf("status error:%d.", status);
+	}
 
 
 	//m_UniformCoeff = glGetUniformLocation(m_Program, "coeff");
@@ -79,17 +86,22 @@ void SetupShader()
 }
 
 
-///创建VBO，VAO等。
+///创建VBO，VAO，texture等等。
 void SetupBuffers()
 {
 	//初始化顶点数组和索引数组。
-	vertexArray = new float[12]{ -1.f,-1.f, 0,-1.f, 1.f, 0, 1.f, 1.f, 0, 1.f,-1.f, 0 };
+	//顶点数组包括UV信息
+	vertexArray = new float[20]{
+		-1.f,-1.f, 0.f,  0.f,0.f,
+		-1.f, 1.f, 0.f,  0.f,1.f,
+		 1.f, 1.f, 0.f,  1.f,1.f,
+		 1.f,-1.f, 0.f,  1.f,0.f};
 	//逆时针
 	indexArray = new int[6]{ 0,2,1,3,2,0 };
 	// Create vertex buffer VBO
 	glGenBuffers(1, &m_VertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, m_VertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float), vertexArray, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 20 * sizeof(float), vertexArray, GL_STATIC_DRAW);
 
 	//创建索引缓存
 	glGenBuffers(1, &m_IndexBuffer);
@@ -98,6 +110,15 @@ void SetupBuffers()
 
 	//创建VAO。
 	glGenVertexArrays(1, &m_VAO);
+
+	texture = readTextureFromFile("curry.png");
+
+	GLenum err = glGetError();
+	if (err != GL_NO_ERROR)
+	{
+		printf("create resource error:%d.", err);
+	}
+
 	/*glBindVertexArray(m_VAO);
 
 	glEnableVertexAttribArray(0);
@@ -108,8 +129,9 @@ void SetupBuffers()
 
 	glBindVertexArray(0);*/
 
-	assert(glGetError() == GL_NO_ERROR);
-	printf("Create resource success.\n");
+	//assert(glGetError() == GL_NO_ERROR);
+	else
+		printf("Create resource success.\n");
 }
 
 void ChangeSize(int w,int h) {
@@ -134,17 +156,30 @@ void mainLoop()
 	glBindVertexArray(m_VAO);
 	//下面的几句话，操作的数组是在glBindBuffer中设置GL_ARRAY_BUFFER设定的。
 
+	glBindBuffer(GL_ARRAY_BUFFER, m_VertexBuffer);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * 5 * 4, vertexArray);
 	//开启GPU读取顶点着色器的数据，如果不写这句，GPU是无法读取数据的，因为CPU与GPU之间的通道默认是关闭的。
 	glEnableVertexAttribArray(kVertexInputPosition);
-	glBindBuffer(GL_ARRAY_BUFFER, m_VertexBuffer);
+	
 	//给shader中传递Position。
 	//最后一个参数是指偏移量，因为只有这一个数组，所以偏移量为0.
-	glVertexAttribPointer(kVertexInputPosition, 3/*每个顶点属性的组件数量，比如每个顶点由3个float值组成*/, GL_FLOAT, GL_FALSE, 0/*步长，连续两个顶点之间跨越的值*/, (char*)0);
+	glVertexAttribPointer(kVertexInputPosition, 3/*每个顶点属性的组件数量，比如每个顶点由3个float值组成*/, GL_FLOAT, GL_FALSE, 20/*步长，连续两个顶点之间跨越的值*/, (char*)0);
 	
+	glEnableVertexAttribArray(kVertexInputTexcoord);
 	//glEnableVertexAttribArray(kVertexInputColor);
-	//glVertexAttribPointer(kVertexInputColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, kVertexSize, (char*)NULL + 12);
+	glVertexAttribPointer(kVertexInputTexcoord, 2, GL_FLOAT, GL_FALSE, 20, (char*)NULL + 12);
 	//索引数据
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer);
+
+	//贴图数据
+	//glBindTexture(GL_TEXTURE_2D, texture);
+	GLuint texLocation = glGetUniformLocation(m_Program, "mSampler");
+	glUniform1i(texLocation, 0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	
+
+	//glUniform
 
 
 	//在开始绘制之前绑定一下VAO。
@@ -154,6 +189,8 @@ void mainLoop()
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 	glDisableVertexAttribArray(kVertexInputPosition);
+	glDisableVertexAttribArray(kVertexInputTexcoord);
+	glBindTexture(GL_TEXTURE_2D, 0);
 	//在绘制完之后清空一下VAO。
 	glBindVertexArray(0);
 	
