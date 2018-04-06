@@ -16,10 +16,11 @@ HGLRC     g_hRC;
 GLuint    m_VertexShader;
 GLuint    m_FragmentShader;
 GLuint    m_Program;
-GLuint    kVertexInputPosition;
-GLuint	  kVertexInputTexcoord;
+GLuint    kVertexInputPosition = 0;
+GLuint	  kVertexInputTexcoord = 1;
 GLuint    kFragInputTexture;
 float*    vertexArray;
+
 int*      indexArray;
 GLuint    m_VertexBuffer;
 GLuint    m_IndexBuffer;
@@ -59,12 +60,10 @@ void SetupShader()
 	//该函数与下面的glBindFragDataLocation用处不一样，该函数是绑定Vertex shader中的变量的。
 	glBindAttribLocation(m_Program, kVertexInputPosition, "pos");
 	glBindAttribLocation(m_Program, kVertexInputTexcoord, "texcoord");
-	//printf("kVertexInputPosition:%d.\n",kVertexInputPosition);
+	//glBindAttribLocation不会 改变kVertexInputPosition的值，只是将这个值与pos变量相关联。
+
 	glAttachShader(m_Program, m_VertexShader);
 	glAttachShader(m_Program, m_FragmentShader);
-
-	//绑定fragment shader中的变量。
-	//glBindFragDataLocation(m_Program, kFragInputTexture, "mSampler");
 	
 	//加上这句话之后，glBindAttribLocation的语句才开始生效。
 	glLinkProgram(m_Program);
@@ -80,9 +79,6 @@ void SetupShader()
 		printf("status error:%d.", status);
 	}
 
-
-	//m_UniformCoeff = glGetUniformLocation(m_Program, "coeff");
-
 }
 
 
@@ -92,10 +88,11 @@ void SetupBuffers()
 	//初始化顶点数组和索引数组。
 	//顶点数组包括UV信息
 	vertexArray = new float[20]{
-		-1.f,-1.f, 0.f,  0.f,0.f,
-		-1.f, 1.f, 0.f,  0.f,1.f,
-		 1.f, 1.f, 0.f,  1.f,1.f,
-		 1.f,-1.f, 0.f,  1.f,0.f};
+		-1.f, -1.f, 0.f,0.f,0.f,
+		-1.f, 1.f, 0.f, 0.f,1.f,
+		1.f, 1.f, 0.f,  1.f,1.f,
+		1.f, -1.f, 0.f ,1.f,0.f };
+
 	//逆时针
 	indexArray = new int[6]{ 0,2,1,3,2,0 };
 	// Create vertex buffer VBO
@@ -118,18 +115,6 @@ void SetupBuffers()
 	{
 		printf("create resource error:%d.", err);
 	}
-
-	/*glBindVertexArray(m_VAO);
-
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, m_VertexBuffer);
-	glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, FALSE, 0, ((GLubyte*)NULL + 0));
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer);
-
-	glBindVertexArray(0);*/
-
-	//assert(glGetError() == GL_NO_ERROR);
 	else
 		printf("Create resource success.\n");
 }
@@ -166,25 +151,16 @@ void mainLoop()
 	glVertexAttribPointer(kVertexInputPosition, 3/*每个顶点属性的组件数量，比如每个顶点由3个float值组成*/, GL_FLOAT, GL_FALSE, 20/*步长，连续两个顶点之间跨越的值*/, (char*)0);
 	
 	glEnableVertexAttribArray(kVertexInputTexcoord);
-	//glEnableVertexAttribArray(kVertexInputColor);
 	glVertexAttribPointer(kVertexInputTexcoord, 2, GL_FLOAT, GL_FALSE, 20, (char*)NULL + 12);
 	//索引数据
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer);
 
 	//贴图数据
-	//glBindTexture(GL_TEXTURE_2D, texture);
 	GLuint texLocation = glGetUniformLocation(m_Program, "mSampler");
 	glUniform1i(texLocation, 0);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture);
 	
-
-	//glUniform
-
-
-	//在开始绘制之前绑定一下VAO。
-	//glBindVertexArray(m_VAO);
-	// Draw
 	//第一个参数：三角形的形态，第二个参数，
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
@@ -194,7 +170,6 @@ void mainLoop()
 	//在绘制完之后清空一下VAO。
 	glBindVertexArray(0);
 	
-
 	SwapBuffers(g_hDC);
 }
 
