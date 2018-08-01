@@ -100,6 +100,7 @@ void SetupBuffers()
 	glBindBuffer(GL_ARRAY_BUFFER, m_VertexBuffer);
 	glBufferData(GL_ARRAY_BUFFER, 20 * sizeof(float), vertexArray, GL_STATIC_DRAW);
 	//glBindBuffer(0)
+
 	//创建索引缓存
 	glGenBuffers(1, &m_IndexBuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer);
@@ -108,7 +109,8 @@ void SetupBuffers()
 	//创建VAO。
 	glGenVertexArrays(1, &m_VAO);
 
-	texture = readTextureFromFile("curry.jpg");
+	texture = readTextureFromFile("curry.png");
+
 
 	GLenum err = glGetError();
 	if (err != GL_NO_ERROR)
@@ -168,7 +170,6 @@ void mainLoop()
 	glBindTexture(GL_TEXTURE_2D, 0);
 	//在绘制完之后清空一下VAO。
 	glBindVertexArray(0);
-
 	SwapBuffers(g_hDC);
 }
 

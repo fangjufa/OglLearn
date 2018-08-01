@@ -1,7 +1,13 @@
 
+<<<<<<< HEAD
 *.tlog
 *.obj
 *.pdb
 *.idb
 *.log
 *.lib
+=======
+*.vcxproj
+*.vcxproj
+*.filters
+>>>>>>> 2ef255a9e4e5b201fa41f76edd04fe728e6037f6

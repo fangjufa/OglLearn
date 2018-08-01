@@ -1,4 +1,5 @@
 ﻿#include"Helper.h"
+
 #include<atlimage.h>
 
 GLuint readTextureFromFile(char* file)
@@ -14,7 +15,6 @@ GLuint readTextureFromFile(char* file)
 		return -1;
 	}
 
-	//图片加载完之后，
 	BITMAP bm;
 	HBITMAP hbmp = img;
 	if (!GetObject(hbmp, sizeof(bm), &bm))
@@ -31,7 +31,7 @@ GLuint readTextureFromFile(char* file)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 		glPixelStoref(GL_PACK_ALIGNMENT, 1);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, 3, bm.bmWidth, bm.bmHeight, 0, GL_BGR, GL_UNSIGNED_BYTE, bm.bmBits); //这里不是GL_RGB  
+		glTexImage2D(GL_TEXTURE_2D, 0, 3, bm.bmWidth, bm.bmHeight, 0, GL_BGR, GL_UNSIGNED_BYTE, bm.bmBits); //这里不是GL_RGB 
 	}
 	return glTex;
 }
